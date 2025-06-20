@@ -1,31 +1,39 @@
+import os
+import json
 import streamlit as st
 import pandas as pd
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 from datetime import datetime
 
-# Autenticação com Google Sheets
+# Escopos para a API do Google Sheets
 scopes = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-creds = ServiceAccountCredentials.from_json_keyfile_name("pedidos-confeitaria-11afb40cb7ed.json", scopes)
+
+# Pega as credenciais da variável de ambiente (definida no Secrets do Streamlit Cloud)
+json_creds = os.getenv("GOOGLE_CREDS")
+
+# Converte o JSON em dict
+creds_dict = json.loads(json_creds)
+
+# Cria as credenciais para o gspread
+creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scopes)
 client = gspread.authorize(creds)
 
-# Abre a planilha (coloque seu ID aqui)
+# Abre a planilha
 SHEET_ID = "1BRXyNFd0Evog97EhbNTmE7J7dp1rP10t3bQtJA41_M8"
 sheet = client.open_by_key(SHEET_ID).sheet1
 
+# --- O resto do seu código permanece igual ---
 st.title("🧁 Pedido – Confeitaria Doçura")
 
-# Dados do cliente
 nome = st.text_input("Nome completo")
 whatsapp = st.text_input("WhatsApp")
 
-# Produtos e quantidades
 st.subheader("Escolha seus produtos")
 cupcake = st.number_input("Cupcake – R$8", min_value=0, step=1)
 torta = st.number_input("Torta de Limão – R$45", min_value=0, step=1)
 brigadeiro = st.number_input("Brigadeiro – R$3", min_value=0, step=1)
 
-# Botão de envio
 if st.button("Enviar pedido"):
     if not nome or not whatsapp:
         st.warning("Por favor, preencha seu nome e WhatsApp.")
@@ -39,8 +47,6 @@ if st.button("Enviar pedido"):
             torta,
             brigadeiro
         ]
-        
-        # Envia para a planilha
         sheet.append_row(pedido)
 
         st.success("✅ Pedido enviado com sucesso!")
