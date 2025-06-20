@@ -1,30 +1,21 @@
 import os
 import json
 import streamlit as st
-import pandas as pd
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
-from datetime import datetime
 
-# Escopos para a API do Google Sheets
 scopes = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
 
-# Pega as credenciais da variável de ambiente (definida no Secrets do Streamlit Cloud)
 json_creds = os.getenv("GOOGLE_CREDS")
-
 if not json_creds:
-    st.error("Erro: variável de ambiente GOOGLE_CREDS não está definida!")
+    st.error("Erro: variável GOOGLE_CREDS não definida")
 else:
-    # Corrige as quebras de linha no JSON da chave privada
+    # Converte as barras duplas \n em quebras de linha reais
     json_creds = json_creds.replace('\\n', '\n')
 
-    # Converte o JSON em dict
     creds_dict = json.loads(json_creds)
-
-    # Cria as credenciais para o gspread
     creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scopes)
     client = gspread.authorize(creds)
-
 
 # Abre a planilha
 SHEET_ID = "1BRXyNFd0Evog97EhbNTmE7J7dp1rP10t3bQtJA41_M8"
