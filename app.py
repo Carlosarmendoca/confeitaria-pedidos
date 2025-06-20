@@ -1,6 +1,17 @@
 import streamlit as st
 import pandas as pd
-import os
+import gspread
+from oauth2client.service_account import ServiceAccountCredentials
+from datetime import datetime
+
+# Autenticação com Google Sheets
+scopes = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
+creds = ServiceAccountCredentials.from_json_keyfile_name("pedidos-confeitaria-11afb40cb7ed.json", scopes)
+client = gspread.authorize(creds)
+
+# Abre a planilha (coloque seu ID aqui)
+SHEET_ID = "1BRXyNFd0Evog97EhbNTmE7J7dp1rP10t3bQtJA41_M8"
+sheet = client.open_by_key(SHEET_ID).sheet1
 
 st.title("🧁 Pedido – Confeitaria Doçura")
 
@@ -19,19 +30,26 @@ if st.button("Enviar pedido"):
     if not nome or not whatsapp:
         st.warning("Por favor, preencha seu nome e WhatsApp.")
     else:
-        pedido = {
+        data = datetime.now().strftime("%d/%m/%Y %H:%M")
+        pedido = [
+            data,
+            nome,
+            whatsapp,
+            cupcake,
+            torta,
+            brigadeiro
+        ]
+        
+        # Envia para a planilha
+        sheet.append_row(pedido)
+
+        st.success("✅ Pedido enviado com sucesso!")
+        st.write("Resumo do pedido:")
+        st.write({
+            "Data": data,
             "Nome": nome,
             "WhatsApp": whatsapp,
             "Cupcake": cupcake,
             "Torta de Limão": torta,
             "Brigadeiro": brigadeiro
-        }
-
-        df = pd.DataFrame([pedido])
-
-        # Cria arquivo CSV ou adiciona ao final
-        file_exists = os.path.isfile("pedidos.csv")
-        df.to_csv("pedidos.csv", mode="a", index=False, header=not file_exists)
-
-        st.success("✅ Pedido enviado com sucesso!")
-        st.write("Resumo do pedido:", pedido)
+        })
