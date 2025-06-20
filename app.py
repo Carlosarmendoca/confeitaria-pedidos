@@ -14,6 +14,8 @@ json_creds = os.getenv("GOOGLE_CREDS")
 
 # Corrige as quebras de linha no JSON da chave privada
 json_creds = json_creds.replace('\\n', '\n')
+json_creds = os.getenv("GOOGLE_CREDS")
+st.write("Conteúdo GOOGLE_CREDS:", json_creds)
 
 # Converte o JSON em dict
 creds_dict = json.loads(json_creds)
