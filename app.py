@@ -12,6 +12,9 @@ scopes = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/a
 # Pega as credenciais da variável de ambiente (definida no Secrets do Streamlit Cloud)
 json_creds = os.getenv("GOOGLE_CREDS")
 
+# Corrige as quebras de linha no JSON da chave privada
+json_creds = json_creds.replace('\\n', '\n')
+
 # Converte o JSON em dict
 creds_dict = json.loads(json_creds)
 
