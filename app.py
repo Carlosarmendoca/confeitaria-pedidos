@@ -12,17 +12,19 @@ scopes = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/a
 # Pega as credenciais da variável de ambiente (definida no Secrets do Streamlit Cloud)
 json_creds = os.getenv("GOOGLE_CREDS")
 
-# Corrige as quebras de linha no JSON da chave privada
-json_creds = json_creds.replace('\\n', '\n')
-json_creds = os.getenv("GOOGLE_CREDS")
-st.write("Conteúdo GOOGLE_CREDS:", json_creds)
+if not json_creds:
+    st.error("Erro: variável de ambiente GOOGLE_CREDS não está definida!")
+else:
+    # Corrige as quebras de linha no JSON da chave privada
+    json_creds = json_creds.replace('\\n', '\n')
 
-# Converte o JSON em dict
-creds_dict = json.loads(json_creds)
+    # Converte o JSON em dict
+    creds_dict = json.loads(json_creds)
 
-# Cria as credenciais para o gspread
-creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scopes)
-client = gspread.authorize(creds)
+    # Cria as credenciais para o gspread
+    creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scopes)
+    client = gspread.authorize(creds)
+
 
 # Abre a planilha
 SHEET_ID = "1BRXyNFd0Evog97EhbNTmE7J7dp1rP10t3bQtJA41_M8"
